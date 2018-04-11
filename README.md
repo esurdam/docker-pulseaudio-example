@@ -46,12 +46,13 @@ load-module module-native-protocol-tcp
 ```
 
 If you want GUI in OSX using docker, then each container image
-has to be built with pulseaudio as found in theis repo, then
+has to be built with pulseaudio as found in this repo Dockerfile, then
 whenever you run docker:
 ```bash
 ### Get X11 Display
 IP=$(ifconfig|grep -E inet.*broad|awk '{ print $2; }')	
 
+### Open xquart, find the display, make it available
 open -a XQuartz &
 p=0;for port in $(seq 0 10);do echo "Check :$((6000+$p)) (:$p)";  nc -w0 127.0.0.1 $((6000+$p)) && export DISPLAY="$IP:$p"; let p=p+1;  done;
 /usr/X11/bin/xhost + $IP
@@ -60,18 +61,14 @@ p=0;for port in $(seq 0 10);do echo "Check :$((6000+$p)) (:$p)";  nc -w0 127.0.0
 ### which should be the same host as X11, if not adjust accordingly. 
 ### also, sorry I dont have public image of firefox with pulse. soon.
 docker run -d \
-		-e PULSE_SERVER=tcp:${IP}:4713 \
-	  -e PULSE_COOKIE=/run/pulse/cookie \
-	  -v ~/.config/pulse/cookie:/run/pulse/cookie \
-		-v "${HOME}/.firefox/cache:/root/.cache/mozilla" \
-		-v "${HOME}/.firefox/mozilla:/root/.mozilla" \
-		-v "${HOME}/Downloads:/root/Downloads" \
-		-v "${HOME}/Pictures:/root/Pictures" \
-		-e "DISPLAY=${DISPLAY}" \
-		-e GDK_SCALE \
-		-e GDK_DPI_SCALE \
-		--name firefox \
-		${DOCKER_REPO_PREFIX}/firefox "$@"
+	-e PULSE_SERVER=tcp:${IP}:4713 \
+	-e PULSE_COOKIE=/run/pulse/cookie \
+	-v ~/.config/pulse/cookie:/run/pulse/cookie \
+	-e "DISPLAY=${DISPLAY}" \
+	-e GDK_SCALE \
+	-e GDK_DPI_SCALE \
+	--name firefox \
+	${DOCKER_REPO_PREFIX}/firefox "$@"
 ```
 
 ### SHM
