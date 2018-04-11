@@ -8,7 +8,12 @@ echo "Found and using ${DOCKER_IMAGE_ID}"
 
 USER_UID=$(id -u)
 
+# OSX local ip 
+IP=$(ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}' | head -n 1)
+
 docker run -t -i \
-  --volume=/run/user/${USER_UID}/pulse:/run/user/1000/pulse \
+  -e PULSE_SERVER=tcp:$IP:4713 \
+  -e PULSE_COOKIE=/run/pulse/cookie \
+  -v ~/.config/pulse/cookie:/run/pulse/cookie \
   ${DOCKER_IMAGE_ID} \
   ${@}
